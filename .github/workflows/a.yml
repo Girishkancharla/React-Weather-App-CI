@@ -1,0 +1,55 @@
+# .github/workflows/main.yml
+
+name: React CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    env:
+      REACT_APP_API_KEY: ${{ secrets.REACT_APP_API_KEY }}
+
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Set up the Node.js environment (CORRECTED STEP)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+          cache: 'npm' 
+          # ----------------------------------------------------
+          # FIX: Specify the path to the lock file.
+          # The lock file is inside the 'weather-app' subdirectory.
+          cache-dependency-path: ./weather-app/package-lock.json
+          # ----------------------------------------------------
+
+      # 3. Install dependencies
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: ./weather-app 
+
+      # 4. Run tests (Continuous Integration)
+      - name: Run Tests
+        run: npm test -- --watchAll=false
+        working-directory: ./weather-app
+
+      # 5. Build the application (Continuous Integration)
+      - name: Build Application
+        run: npm run build
+        working-directory: ./weather-app
+        
+      # 6. Deploy to GitHub Pages (Continuous Deployment)
+      - name: Deploy to GitHub Pages 🚀
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./weather-app/build
+          publish_branch: gh-pages
