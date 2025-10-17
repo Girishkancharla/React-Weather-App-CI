@@ -1,0 +1,60 @@
+# .github/workflows/main.yml
+
+name: React CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    # Use a fresh, fast runner environment
+    runs-on: ubuntu-latest
+    
+    # Define environment variables for the entire job
+    env:
+      # Pass the API key securely from GitHub Secrets to the build process
+      # Your API key from the .env file is: 8f4ef2b74ea4ebcefd561c49d426bcba
+      REACT_APP_API_KEY: ${{ secrets.REACT_APP_API_KEY }}
+      
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Set up the Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Using Node.js v20 as indicated by the package-lock.json
+          node-version: '20' 
+          cache: 'npm' 
+
+      # 3. Install dependencies
+      - name: Install Dependencies
+        # Crucial: specify the subdirectory for the npm command
+        run: npm ci 
+        working-directory: ./weather-app 
+
+      # 4. Run tests (Continuous Integration)
+      - name: Run Tests
+        # Run tests (disabling watch mode for CI)
+        run: npm test -- --watchAll=false
+        working-directory: ./weather-app
+
+      # 5. Build the application (Continuous Integration)
+      - name: Build Application
+        # Builds the app for production to the 'build' folder
+        run: npm run build
+        working-directory: ./weather-app
+        
+      # 6. Deploy to GitHub Pages (Continuous Deployment)
+      - name: Deploy to GitHub Pages 🚀
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Specify the exact path to the 'build' directory inside 'weather-app'
+          publish_dir: ./weather-app/build
+          # Deploys to the 'gh-pages' branch
+          publish_branch: gh-pages
