@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-app
+spec:
+  replicas: 1   # number of pods (containers) you want running
+  selector:
+    matchLabels:
+      app: weather-app
+  template:
+    metadata:
+      labels:
+        app: weather-app
+    spec:
+      containers:
+        - name: weather-app
+          image: weather-app:latest   # our local image built with Docker
+          imagePullPolicy: Never      # tells Kubernetes to use the local image, not Docker Hub
+          ports:
+            - containerPort: 80       # app runs inside container on port 80
