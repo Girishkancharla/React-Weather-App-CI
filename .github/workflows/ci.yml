@@ -1,0 +1,45 @@
+name: CI/CD Pipeline - Weather App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️⃣ Checkout your repo
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2️⃣ Setup Node.js
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    # 3️⃣ Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # 4️⃣ Run tests (optional)
+    - name: Run tests
+      run: npm test --if-present
+
+    # 5️⃣ Build the app
+    - name: Build project
+      run: npm run build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 6️⃣ Deploy to Vercel
+    - name: Deploy to Vercel
+      run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
