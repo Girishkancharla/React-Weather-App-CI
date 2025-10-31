@@ -12,14 +12,17 @@ function WeatherForm({ fetchWeather }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="weather-form" onSubmit={handleSubmit}>
       <input
+        className="weather-input"
         type="text"
         placeholder="Enter city"
         value={city}
         onChange={(e) => setCity(e.target.value)}
       />
-      <button type="submit">Get Weather</button>
+      <button className="weather-button" type="submit">
+        Check Weather
+      </button>
     </form>
   );
 }
